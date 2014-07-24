@@ -34,7 +34,22 @@ cachemean <- function(x, ...) {
 ##
 makeCacheMatrix <- function(x = matrix()) {
 
-  ## compute special matrix
+  m <- x$getInv()
+  if(!is.null(m)) {
+    message("getting cached inverse data")
+    return(m)
+  }
+  ## fetch the data of the matrix
+  data <- x$get()
+  
+  ## invert it
+  m <- solve(data, ...)
+
+  ## cache it
+  x$setInv(m)
+  
+  ## return it
+  m
   
 }
 
@@ -57,7 +72,18 @@ cacheSolve <- function(x,...) {
   ## For this assignment, assume that the matrix supplied is always invertible.
   ##
   Xinv <- solve(x)
-
+  
+  m <- NULL
+  set <- function(y) {
+    x <<- y
+    m <<- NULL
+  }
+  get <- function() x
+  setInv <- function(inverse) m <<- inverse
+  getInv <- function() m
+  list(set = set, get = get,
+       setInv = setInv,
+       getInv = getInv)
 
   ## cache the computed inverse 
 
