@@ -16,11 +16,16 @@ makeVector <- function(x = numeric()) {
 
 ## cachemean function
 cachemean <- function(x, ...) {
+
+  ## look up the mean
         m <- x$getmean()
+
+        ## if we computed and cached it, then return it
         if(!is.null(m)) {
                 message("getting cached data")
                 return(m)
         }
+        ## else do a lazy eval of computing the inverse of the matrix data
         data <- x$get()
         m <- mean(data, ...)
         x$setmean(m)
@@ -34,23 +39,20 @@ cachemean <- function(x, ...) {
 ##
 makeCacheMatrix <- function(x = matrix()) {
 
-  m <- x$getInv()
-  if(!is.null(m)) {
-    message("getting cached inverse data")
-    return(m)
+   m <- NULL
+  set <- function(y) {
+    x <<- y
+    m <<- NULL
   }
-  ## fetch the data of the matrix
-  data <- x$get()
-  
-  ## invert it
-  m <- solve(data, ...)
+  get <- function() x
+  setInv <- function(solve) m <<- solve
+  getInv <- function() m
 
-  ## cache it
-  x$setInv(m)
-  
-  ## return it
-  m
-  
+   ## create the set and get accessors for this computed inverse
+  list(set = set, get = get,
+       setInv = setInv,
+       getInv = getInv)
+   
 }
 
 ## cacheSolve
@@ -61,30 +63,35 @@ makeCacheMatrix <- function(x = matrix()) {
 ##
 ## returns the inverse of the 'x' matrix
 ##
+## detailed approach computed today
+## steps this function performs
+## check and see if cache already has calculated the inverse
+## else compute the inverse
+##
+## if X is a square invertible matrix, then solve(X) returns its inverse.
+##
+## For this assignment, assume that the matrix supplied is always invertible.
+##
 cacheSolve <- function(x,...) {
 
-  ## check and see if cache already has calculated the inverse
-  
-  ## else compute the inverse
-  ##
-  ## if X is a square invertible matrix, then solve(X) returns its inverse.
-  ##
-  ## For this assignment, assume that the matrix supplied is always invertible.
-  ##
-  Xinv <- solve(x)
-  
-  m <- NULL
-  set <- function(y) {
-    x <<- y
-    m <<- NULL
+## check and see if cache already has calculated the inverse
+  m <- x$getInv()
+  if(!is.null(m)) {
+    message("getting cached inverse data")
+    ## return the cached version
+    return(m)
   }
-  get <- function() x
-  setInv <- function(inverse) m <<- inverse
-  getInv <- function() m
-  list(set = set, get = get,
-       setInv = setInv,
-       getInv = getInv)
 
-  ## cache the computed inverse 
+  ## else compute the inverse, start by fetching the data of the matrix
+  data <- x$get()
+  
+  ## invert it
+  m <- solve(data, ...)
 
+  ## cache it for future lookups
+  x$setInv(m)
+  
+  ## return it
+  m
+ 
 }
