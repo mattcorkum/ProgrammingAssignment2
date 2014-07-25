@@ -13,7 +13,7 @@ makeCacheMatrix <- function(x = matrix()) {
     m <<- NULL
   }
   get <- function() x
-  setInv <- function(x) m <<- solve
+  setInv <- function(solve) m <<- solve
   getInv <- function() m
 
    ## create the set and get accessors for this computed inverse
@@ -51,8 +51,8 @@ cacheSolve <- function(x,...) {
   }
 
   ## else compute the inverse, start by fetching the data of the matrix
-  data <- as.numeric(x$get())
-  
+ ## data <- as.numeric(x$get())
+ data <- x$get()
   ## invert it
   m <- solve(data, ...)
 
